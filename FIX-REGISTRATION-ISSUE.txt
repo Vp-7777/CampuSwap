@@ -1,0 +1,159 @@
+========================================
+  FIX REGISTRATION FAILED ERROR
+========================================
+
+PROBLEM: Backend Server is NOT Running!
+---------------------------------------
+Registration is failing because the backend API at http://localhost:8080 is not accessible.
+
+ROOT CAUSE:
+-----------
+Maven is not properly configured in your system PATH, so the backend couldn't start.
+
+SOLUTION - 3 EASY OPTIONS:
+===========================
+
+╔═══════════════════════════════════════════════════════════════╗
+║  OPTION 1: Use IntelliJ IDEA (RECOMMENDED - EASIEST!)        ║
+╚═══════════════════════════════════════════════════════════════╝
+
+1. Open IntelliJ IDEA Community Edition
+   (Download free from: https://www.jetbrains.com/idea/download/)
+
+2. File → Open → Navigate to:
+   C:\Users\VISHAL\CampuSwap\backend
+
+3. Wait for IntelliJ to:
+   - Detect Maven project
+   - Download all dependencies (takes 2-5 minutes first time)
+   - Index files
+
+4. Navigate to:
+   src → main → java → com.campuswap → CampuswapApplication.java
+
+5. Right-click on CampuswapApplication.java
+   → Click "Run 'CampuswapApplication'"
+
+6. Wait for backend to start (look for "Started CampuswapApplication" in console)
+
+7. Backend will be running at: http://localhost:8080
+
+8. For frontend: Open NEW terminal
+   cd C:\Users\VISHAL\CampuSwap\frontend
+   npm install
+   npm start
+
+9. Go to http://localhost:3000 and try registration again!
+
+
+╔═══════════════════════════════════════════════════════════════╗
+║  OPTION 2: Fix Maven PATH                                     ║
+╚═══════════════════════════════════════════════════════════════╝
+
+1. Find your Maven installation folder
+   Common locations:
+   - C:\Program Files\Apache\Maven\apache-maven-3.x.x
+   - C:\Tools\apache-maven-3.x.x
+   - C:\Users\VISHAL\Downloads\apache-maven-3.x.x
+
+2. Inside the Maven folder, you should see:
+   ├── bin
+   ├── boot
+   ├── conf
+   └── lib
+
+3. Update Windows PATH:
+   - Press Windows Key
+   - Type "Environment Variables"
+   - Click "Edit system environment variables"
+   - Click "Environment Variables" button
+   - Under "System variables", find "Path"
+   - Click "Edit"
+   - Remove incorrect Maven entry
+   - Click "New" and add: [Your Maven Path]\bin
+     Example: C:\Program Files\Apache\Maven\apache-maven-3.9.11\bin
+   - Click OK on all windows
+
+4. IMPORTANT: Close ALL terminal windows and restart them
+
+5. Verify Maven:
+   Open NEW Command Prompt
+   mvn --version
+
+6. If Maven works, run:
+   cd C:\Users\VISHAL\CampuSwap
+   Double-click: START-ALL.bat
+
+
+╔═══════════════════════════════════════════════════════════════╗
+║  OPTION 3: Manual Command Line (For Advanced Users)           ║
+╚═══════════════════════════════════════════════════════════════╝
+
+BACKEND:
+--------
+1. Download Maven if not installed:
+   https://maven.apache.org/download.cgi
+
+2. Extract to: C:\Tools\apache-maven-3.9.11
+
+3. Open Command Prompt:
+   set PATH=C:\Tools\apache-maven-3.9.11\bin;%PATH%
+   cd C:\Users\VISHAL\CampuSwap\backend
+   mvn clean package -DskipTests
+   java -jar target\campuswap-backend-1.0.0.jar
+
+FRONTEND (in separate terminal):
+---------------------------------
+   cd C:\Users\VISHAL\CampuSwap\frontend
+   npm install
+   npm start
+
+
+VERIFY BACKEND IS RUNNING:
+===========================
+Open browser and go to: http://localhost:8080
+You should see a Whitelabel Error Page (this is GOOD - means backend is running)
+
+
+TESTING REGISTRATION:
+=====================
+Once BOTH servers are running:
+
+1. Open: http://localhost:3000
+2. Click "Register" button
+3. Fill in the form:
+   - Email: test@example.com
+   - Password: password123
+   - Full Name: Test User
+   - Phone: 1234567890
+4. Click "Register"
+5. You should be automatically logged in!
+
+If registration works, you'll see the dashboard/home page.
+
+
+TROUBLESHOOTING:
+================
+Backend won't start:
+→ Check PostgreSQL is running
+→ Check port 8080 is not in use
+→ Check backend terminal for error messages
+
+Frontend won't connect:
+→ Verify backend is running first
+→ Open browser console (F12) to see errors
+→ Check CORS errors
+
+Database errors:
+→ Ensure PostgreSQL is running
+→ Create database: CREATE DATABASE campuswap;
+→ Check credentials in backend/src/main/resources/application.properties
+
+
+NEED HELP?
+==========
+1. Check both terminal windows for error messages
+2. Share the exact error message you see
+3. Verify which ports are in use: netstat -ano | findstr "8080"
+
+Good luck! The easiest way is definitely Option 1 with IntelliJ IDEA.

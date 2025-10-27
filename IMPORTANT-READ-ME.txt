@@ -1,0 +1,68 @@
+======================================
+  CampuSwap - IMPORTANT SETUP NOTES
+======================================
+
+I've just launched START-ALL.bat which should open 2 terminal windows.
+
+ISSUE DETECTED: Maven Path Configuration
+-----------------------------------------
+Your Maven path in environment variables is:
+  C:\Users\VISHAL\Downloads\apache-maven-3.9.11-bin
+
+But this directory doesn't exist or is incomplete.
+
+SOLUTION - Fix Maven Path:
+===========================
+
+Option 1: If Maven is Already Installed
+----------------------------------------
+1. Find where Maven is actually installed
+2. Look for a folder like: apache-maven-3.9.11 (not -bin)
+3. Inside should be: bin, boot, conf, lib folders
+4. Update your PATH to point to the "bin" folder
+   Example: C:\Users\VISHAL\Downloads\apache-maven-3.9.11\bin
+
+Option 2: Fresh Maven Install
+------------------------------
+1. Download Maven from: https://maven.apache.org/download.cgi
+2. Extract the zip file (NOT to Downloads, use C:\Program Files or C:\Tools)
+3. Add to PATH: [extract location]\apache-maven-3.9.11\bin
+4. Verify: Open new CMD and type: mvn --version
+
+HOW TO UPDATE PATH:
+===================
+1. Press Windows Key
+2. Type "Environment Variables"
+3. Click "Edit system environment variables"
+4. Click "Environment Variables" button
+5. Under "System variables", find "Path"
+6. Click "Edit"
+7. Fix the Maven path or add correct one
+8. Click OK on all windows
+9. RESTART any open terminals
+
+AFTER FIXING MAVEN:
+===================
+1. Close any open terminal windows
+2. Double-click: C:\Users\VISHAL\CampuSwap\START-ALL.bat
+3. Wait for both servers to start
+4. Open browser: http://localhost:3000
+
+ALTERNATIVE - Use IntelliJ IDEA:
+=================================
+If Maven setup is difficult, you can:
+1. Open the "backend" folder in IntelliJ IDEA
+2. Let IntelliJ download Maven dependencies
+3. Right-click CampuswapApplication.java → Run
+4. For frontend: Open terminal in "frontend" folder and run: npm start
+
+TESTING:
+========
+Once both servers are running:
+1. Go to http://localhost:3000
+2. Click Register
+3. Create account: test@example.com / password123 / Test User
+4. Login with same credentials
+5. Browse products, add items, test features
+
+Contact for help if needed!
