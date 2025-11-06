@@ -56,7 +56,13 @@ public class CartService {
         // Force initialization of lazy-loaded products and sellers
         items.forEach(cart -> {
             cart.getProduct().getTitle();
-            cart.getProduct().getSeller().getEmail();
+            // ensure seller and images are initialized for JSON
+            if (cart.getProduct().getSeller() != null) {
+                cart.getProduct().getSeller().getEmail();
+            }
+            if (cart.getProduct().getImages() != null) {
+                cart.getProduct().getImages().size();
+            }
         });
         return items;
     }

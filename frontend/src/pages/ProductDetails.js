@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { productAPI, wishlistAPI, transactionAPI } from '../services/api';
-import { addToCart } from '../services/cartService';
+import { productAPI, wishlistAPI, transactionAPI, publicAPI } from '../services/api';
+import AuctionPanel from '../components/AuctionPanel';
 import { useAuth } from '../context/AuthContext';
 
 const ProductDetails = () => {
@@ -11,6 +11,7 @@ const ProductDetails = () => {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [inWishlist, setInWishlist] = useState(false);
+  const [showAuction, setShowAuction] = useState(false);
 
   useEffect(() => {
     loadProduct();
@@ -56,25 +57,7 @@ const ProductDetails = () => {
   };
 
   const handleBuyNow = async () => {
-    if (!user) {
-      navigate('/login');
-      return;
-    }
-    
-    if (window.confirm(`Buy ${product.title} for ₹${product.price.toLocaleString('en-IN')}?`)) {
-      try {
-        await transactionAPI.create({
-          productId: product.id,
-          type: 'BUY',
-          amount: product.price,
-          paymentMethod: 'WALLET'
-        });
-        alert('Purchase request sent to seller!');
-        navigate('/transactions');
-      } catch (error) {
-        alert('Failed to create transaction: ' + error.response?.data?.message || error.message);
-      }
-    }
+    navigate(`/checkout?productId=${id}`);
   };
 
   const handleChat = () => {
@@ -82,23 +65,15 @@ const ProductDetails = () => {
       navigate('/login');
       return;
     }
-    navigate(`/chat?sellerId=${product.seller.id}`);
+    const phone = (product.seller.phoneNumber || '').replace(/\D/g,'');
+    const msg = encodeURIComponent(`Hi ${product.seller.fullName}, I'm interested in your product: ${product.title} (₹${product.price}).`);
+    if (phone) {
+      window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+    } else {
+      alert('Seller has not provided a WhatsApp number.');
+    }
   };
 
-  const handleAddToCart = async () => {
-    if (!user) {
-      navigate('/login');
-      return;
-    }
-    
-    try {
-      await addToCart(product.id);
-      alert('Added to cart!');
-      window.dispatchEvent(new Event('cartUpdate'));
-    } catch (error) {
-      alert('Failed to add to cart: ' + error.response?.data?.error || error.message);
-    }
-  };
 
   if (loading) {
     return <div className="flex justify-center items-center h-screen">Loading...</div>;
@@ -121,7 +96,7 @@ const ProductDetails = () => {
                 src={product.images[0].startsWith('http') ? product.images[0] : `http://localhost:8080${product.images[0]}`}
                 alt={product.title}
                 className="w-full h-full object-cover"
-                onError={(e) => { e.target.src = 'https://via.placeholder.com/600?text=No+Image' }}
+onError={(e) => { e.target.src = 'https://placehold.co/600x600?text=No+Image' }}
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center">
@@ -231,11 +206,11 @@ const ProductDetails = () => {
                 <span>Buy Now</span>
               </button>
               <button
-                onClick={handleAddToCart}
-                className="w-full bg-white border-2 border-purple-600 text-purple-600 py-4 rounded-xl font-semibold hover:bg-purple-50 transition flex items-center justify-center gap-2"
+                onClick={() => setShowAuction(true)}
+                className="w-full bg-white border-2 border-rose-600 text-rose-700 py-4 rounded-xl font-semibold hover:bg-rose-50 transition flex items-center justify-center gap-2"
               >
-                <span>🛍️</span>
-                <span>Add to Cart</span>
+                <span>⏱️</span>
+                <span>Join Live Auction</span>
               </button>
               <button
                 onClick={handleChat}
@@ -248,12 +223,29 @@ const ProductDetails = () => {
           ) : (
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <p className="text-blue-800 font-semibold">This is your product</p>
-              <button
-                onClick={() => navigate('/my-products')}
-                className="mt-2 text-blue-600 hover:underline"
-              >
-                Manage your products →
-              </button>
+              <div className="mt-2 flex items-center gap-3">
+                <button
+                  onClick={() => navigate('/my-products')}
+                  className="text-blue-600 hover:underline"
+                >
+                  Manage your products →
+                </button>
+                <button
+                  onClick={async () => {
+                    if (!window.confirm('Remove this product from marketplace?')) return;
+                    try {
+                      await productAPI.delete(product.id);
+                      alert('Product removed.');
+                      navigate('/my-products');
+                    } catch (e) {
+                      alert(e.response?.data?.error || e.response?.data?.message || 'Failed to remove product');
+                    }
+                  }}
+                  className="px-3 py-1.5 rounded bg-red-600 text-white text-sm hover:bg-red-700"
+                >
+                  Delist
+                </button>
+              </div>
             </div>
           )}
 
@@ -270,6 +262,7 @@ const ProductDetails = () => {
           </div>
         </div>
       </div>
+      {showAuction && <AuctionPanel price={product.price} productId={product.id} onClose={() => setShowAuction(false)} />}
     </div>
   );
 };

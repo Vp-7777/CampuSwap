@@ -9,6 +9,7 @@ const Register = () => {
     password: '',
     fullName: '',
     phoneNumber: '',
+    referralCode: '', // optional
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -26,7 +27,10 @@ const Register = () => {
     setLoading(true);
 
     try {
-      const response = await authAPI.register(formData);
+      // Only send referralCode if provided
+      const payload = { ...formData };
+      if (!payload.referralCode) delete payload.referralCode;
+      const response = await authAPI.register(payload);
       const { token, ...userData } = response.data;
       login(userData, token);
       navigate('/');
@@ -91,7 +95,19 @@ const Register = () => {
                 value={formData.phoneNumber}
                 onChange={handleChange}
                 className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
-                placeholder="1234567890"
+                placeholder="91XXXXXXXXXX (WhatsApp)"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Referral Code (optional)</label>
+              <input
+                type="text"
+                name="referralCode"
+                value={formData.referralCode}
+                onChange={handleChange}
+                className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                placeholder="Enter code if you have one"
               />
             </div>
 

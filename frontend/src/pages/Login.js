@@ -8,6 +8,7 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [referralInput, setReferralInput] = useState('');
   
   const navigate = useNavigate();
   const { login } = useAuth();
@@ -22,6 +23,18 @@ const Login = () => {
       const { token, ...userData } = response.data;
       login(userData, token);
       navigate('/');
+      // If user entered referral code on login screen, try to redeem post-login
+      if (referralInput.trim()) {
+        try {
+          const { redeemReferral } = await import('../services/campusCoinService');
+          await redeemReferral(referralInput.trim());
+          window.dispatchEvent(new Event('coinUpdate'));
+          alert('Referral code applied! Coins granted to referrer.');
+        } catch (e) {
+          // Non-fatal
+          console.warn('Referral redeem failed:', e?.response?.data || e);
+        }
+      }
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed. Please check your credentials.');
     } finally {
@@ -87,6 +100,17 @@ const Login = () => {
           >
             {loading ? 'Signing in...' : 'Sign In'}
           </button>
+
+          <div className="space-y-2">
+            <label className="block text-sm font-medium text-gray-700">Referral Code (optional)</label>
+            <input
+              type="text"
+              value={referralInput}
+              onChange={(e)=>setReferralInput(e.target.value)}
+              className="mt-1 block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+              placeholder="Enter referral/invite code"
+            />
+          </div>
 
           <div className="text-center">
             <Link to="/register" className="text-sm text-indigo-600 hover:text-indigo-500">

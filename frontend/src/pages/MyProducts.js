@@ -21,6 +21,17 @@ const MyProducts = () => {
     load();
   }, []);
 
+  const delist = async (id) => {
+    if (!window.confirm('Remove this product from marketplace?')) return;
+    try {
+      await productAPI.delete(id);
+      setProducts(prev => prev.filter(p => p.id !== id));
+      alert('Product removed.');
+    } catch (e) {
+      alert(e.response?.data?.error || e.response?.data?.message || 'Failed to remove product');
+    }
+  };
+
   if (loading) return <div className="flex items-center justify-center h-screen">Loading...</div>;
 
   return (
@@ -59,9 +70,12 @@ const MyProducts = () => {
                 <span className="px-2 py-0.5 bg-gray-100 rounded">{p.category}</span>
                 <span>₹{p.price}</span>
               </div>
-              <div className="mt-2 text-xs text-gray-500 flex items-center gap-3">
-                <span>Status: <span className="font-medium">{p.status}</span></span>
-                <span>Approval: <span className="font-medium">{p.approvalStatus}</span></span>
+              <div className="mt-2 text-xs text-gray-500 flex items-center gap-3 justify-between">
+                <div className="flex items-center gap-3">
+                  <span>Status: <span className="font-medium">{p.status}</span></span>
+                  <span>Approval: <span className="font-medium">{p.approvalStatus}</span></span>
+                </div>
+                <button onClick={() => delist(p.id)} className="px-3 py-1.5 rounded bg-red-600 text-white text-xs hover:bg-red-700">Delist</button>
               </div>
             </div>
           ))}

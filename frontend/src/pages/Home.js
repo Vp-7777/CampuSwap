@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { productAPI, wishlistAPI } from '../services/api';
-import { addToCart } from '../services/cartService';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
@@ -25,6 +24,19 @@ const Home = () => {
     { id: 'SPORTS', name: 'Sports', icon: '⚽' },
     { id: 'OTHER', name: 'Other', icon: '🔧' }
   ];
+
+  // Auto-changing tagline under CampusFeed
+  const taglines = [
+    '💼 Tech, Fashion & More — All Inside Your Campus!',
+    '📚 Books, Gadgets & Deals — From Students, For Students!',
+    '🛍️ Fashion, Accessories & Essentials — Nearby!',
+    '🪑 Furniture, Electronics & More — Budget-Friendly on Campus!'
+  ];
+  const [tagIndex, setTagIndex] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setTagIndex(i => (i + 1) % taglines.length), 3000);
+    return () => clearInterval(id);
+  }, []);
 
   useEffect(() => {
     loadProducts();
@@ -73,6 +85,9 @@ const Home = () => {
         p.description?.toLowerCase().includes(searchQuery.toLowerCase())
       );
     }
+
+    // Hide sold products
+    filtered = filtered.filter(p => (p.status || 'AVAILABLE') !== 'SOLD');
 
     // Sort
     switch (sortBy) {
@@ -128,21 +143,6 @@ const Home = () => {
     }
   };
 
-  const handleQuickAddToCart = async (e, productId) => {
-    e.preventDefault();
-    if (!user) {
-      navigate('/login');
-      return;
-    }
-
-    try {
-      await addToCart(productId);
-      alert('✅ Added to cart!');
-      window.dispatchEvent(new Event('cartUpdate'));
-    } catch (error) {
-      alert('Failed: ' + error.response?.data?.error);
-    }
-  };
 
   if (loading) {
     return <div className="flex justify-center items-center h-screen">Loading...</div>;
@@ -152,8 +152,11 @@ const Home = () => {
     <div className="max-w-7xl mx-auto px-4 py-6">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-2">🏫 CampusFeed</h1>
-        <p className="text-gray-600">Your campus marketplace community</p>
+        <h1 className="text-3xl font-bold mb-1">🏫 CampusFeed</h1>
+        <p className="text-sm text-indigo-600 font-medium animate-fade-in" key={tagIndex}>
+          {taglines[tagIndex]}
+        </p>
+        <p className="text-gray-600 mt-1">Your campus marketplace community</p>
       </div>
 
       {/* Search Bar */}
@@ -218,19 +221,12 @@ const Home = () => {
                     src={product.images[0].startsWith('http') ? product.images[0] : `http://localhost:8080${product.images[0]}`}
                     alt={product.title}
                     className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    onError={(e) => { e.target.src = 'https://via.placeholder.com/400?text=No+Image' }}
+onError={(e) => { e.target.src = 'https://placehold.co/400x300?text=No+Image' }}
                   />
                 ) : (
                   <span className="text-gray-400">No Image</span>
                 )}
                 <div className="absolute top-2 right-2 flex gap-2">
-                  <button
-                    onClick={(e) => handleQuickAddToCart(e, product.id)}
-                    className="p-2 rounded-full backdrop-blur-sm bg-white/80 text-gray-600 hover:bg-purple-500 hover:text-white transition"
-                    title="Quick add to cart"
-                  >
-                    🛍️
-                  </button>
                   <button
                     onClick={(e) => handleLike(e, product.id)}
                     className={`p-2 rounded-full backdrop-blur-sm ${
@@ -287,11 +283,17 @@ const Home = () => {
                 <button
                   onClick={(e) => {
                     e.preventDefault();
-                    navigate(`/chat?sellerId=${product.seller?.id}`);
+                    const phone = (product.seller?.phoneNumber || '').replace(/\D/g,'');
+                    const msg = encodeURIComponent(`Hi ${product.seller?.fullName || ''}, I'm interested in your product: ${product.title} (₹${product.price}).`);
+                    if (phone) {
+                      window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+                    } else {
+                      alert('Seller has not provided a WhatsApp number.');
+                    }
                   }}
                   className="py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-medium"
                 >
-                  💬 Chat
+                  💬 Chat (WhatsApp)
                 </button>
               </div>
 

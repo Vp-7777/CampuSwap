@@ -15,6 +15,7 @@ const Cart = () => {
   const [finalTotal, setFinalTotal] = useState(0);
   const [showNotification, setShowNotification] = useState(false);
   const [notification, setNotification] = useState({ amount: 0, message: '' });
+  const [fetchError, setFetchError] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -31,6 +32,7 @@ const Cart = () => {
       setLoading(false);
     } catch (error) {
       console.error('Error fetching cart:', error);
+      setFetchError(error.response?.data?.error || error.response?.data?.message || error.message || 'Failed to load cart');
       setLoading(false);
     }
   };
@@ -149,6 +151,9 @@ const Cart = () => {
           </p>
         </div>
 
+        {fetchError && (
+          <div className="mb-4 p-3 rounded bg-red-50 text-red-700 border border-red-200">{fetchError}</div>
+        )}
         {cartItems.length === 0 ? (
           <div className="card-modern p-12 text-center">
             <div className="text-6xl mb-4">🛒</div>

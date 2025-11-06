@@ -14,8 +14,9 @@ import Chat from './pages/Chat';
 import Profile from './pages/Profile';
 import AdminDashboard from './pages/AdminDashboard';
 import Transactions from './pages/Transactions';
-import Cart from './pages/Cart';
 import CampusCoins from './pages/CampusCoins';
+import Checkout from './pages/Checkout';
+import { ThemeProvider } from './context/ThemeContext';
 
 // Components
 import Navbar from './components/Navbar';
@@ -133,11 +134,12 @@ function AppContent() {
           }
         />
 
+
         <Route
-          path="/cart"
+          path="/checkout"
           element={
             <ProtectedRoute>
-              <Cart />
+              <Checkout />
             </ProtectedRoute>
           }
         />
@@ -161,11 +163,13 @@ function AppContent() {
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <AppContent />
-      </Router>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <Router>
+          <AppContent />
+        </Router>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 

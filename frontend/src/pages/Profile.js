@@ -176,6 +176,16 @@ const Profile = () => {
           >
             🎁 Referral
           </button>
+          <button
+            onClick={() => setActiveTab('contact')}
+            className={`px-6 py-3 rounded-xl font-semibold transition ${
+              activeTab === 'contact'
+                ? 'bg-gradient-to-r from-purple-600 to-teal-600 text-white shadow-lg'
+                : 'bg-white text-gray-700 hover:bg-gray-50'
+            }`}
+          >
+            📞 Contact
+          </button>
         </div>
 
         {/* Content */}
@@ -268,6 +278,29 @@ const Profile = () => {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+
+        {activeTab === 'contact' && (
+          <div className="card-modern p-6">
+            <h2 className="text-2xl font-bold mb-6">📞 WhatsApp Contact</h2>
+            <p className="text-gray-600 mb-4">Add your WhatsApp number so buyers can contact you directly. Include country code (e.g., 91XXXXXXXXXX).</p>
+            <div className="max-w-md space-y-3">
+              <label className="block text-sm text-gray-600">WhatsApp Number</label>
+              <input id="wa-number" type="tel" defaultValue={userData?.phoneNumber || ''} placeholder="91XXXXXXXXXX" className="w-full px-4 py-2 border rounded-lg" />
+              <button onClick={() => {
+                const input = document.getElementById('wa-number');
+                const cleaned = (input?.value || '').replace(/\D/g,'');
+                if (!cleaned) { alert('Enter a valid number'); return; }
+                try {
+                  const u = JSON.parse(localStorage.getItem('user') || '{}');
+                  u.phoneNumber = cleaned;
+                  localStorage.setItem('user', JSON.stringify(u));
+                  setUserData(u);
+                  alert('Saved! Your WhatsApp will be used for chat buttons.');
+                } catch {}
+              }} className="px-4 py-2 bg-indigo-600 text-white rounded-lg">Save</button>
+            </div>
           </div>
         )}
 

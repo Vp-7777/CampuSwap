@@ -2,29 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import CoinWallet from './CoinWallet';
-import { getCartCount } from '../services/cartService';
+import { useTheme } from '../context/ThemeContext';
 
 const Navbar = () => {
   const { user, logout, isAdmin } = useAuth();
+  const { mode, cycle } = useTheme();
   const navigate = useNavigate();
-  const [cartCount, setCartCount] = useState(0);
 
-  useEffect(() => {
-    fetchCartCount();
-    
-    // Listen for cart updates
-    window.addEventListener('cartUpdate', fetchCartCount);
-    return () => window.removeEventListener('cartUpdate', fetchCartCount);
-  }, []);
-
-  const fetchCartCount = async () => {
-    try {
-      const data = await getCartCount();
-      setCartCount(data.count);
-    } catch (error) {
-      console.error('Error fetching cart count:', error);
-    }
-  };
 
   const handleLogout = () => {
     logout();
@@ -32,7 +16,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur shadow-sm border-b border-gray-100">
+<nav className="sticky top-0 z-50 bg-white/90 dark:bg-gray-800/90 backdrop-blur shadow-sm border-b border-gray-100 dark:border-gray-700">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Left: Brand */}
@@ -61,13 +45,11 @@ const Navbar = () => {
             {/* Sell Item */}
             <Link to="/create-product" className="inline-flex items-center px-3 py-2 rounded-md bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700">+ Sell</Link>
 
-            {/* Cart */}
-            <Link to="/cart" className="relative inline-flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100">
-              <span className="text-xl">🛒</span>
-              {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center">{cartCount}</span>
-              )}
-            </Link>
+            {/* Theme toggle */}
+<button onClick={cycle} title={`Theme: ${mode}`} className="inline-flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700">
+              <span className="text-xl">{mode==='dark'?'🌙':mode==='light'?'☀️':'🖥️'}</span>
+            </button>
+
 
             {/* Profile */}
             <Link to="/profile" className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-teal-500 text-white font-semibold">

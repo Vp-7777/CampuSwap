@@ -42,6 +42,12 @@ public class SecurityConfig {
                 .requestMatchers("/ws/**").permitAll()
                 .requestMatchers("/uploads/**").permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/products/**").permitAll()
+                .requestMatchers("/api/public/**").permitAll()
+                // Temporarily permit some public endpoints
+                .requestMatchers("/api/transactions/**").permitAll()
+                // Cart requires auth
+                .requestMatchers("/api/cart/**").authenticated()
+                .requestMatchers("/api/wishlist/**").permitAll()
                 // Everything else requires auth
                 .anyRequest().authenticated()
             )

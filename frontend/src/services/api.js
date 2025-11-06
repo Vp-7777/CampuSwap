@@ -1,20 +1,30 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8080/api';
+// Configurable API base; falls back to '/api' so the frontend can be reverse-proxied by the backend
+const API_BASE_URL = (process.env.REACT_APP_API_BASE_URL || '/api').replace(/\/$/, '');
 
 const api = axios.create({
   baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  // Do not set a global Content-Type; let axios/browser set it per request (especially for FormData)
+  // withCredentials: true,
 });
 
 // Add token to requests
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
+    if (!config.headers) config.headers = {};
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+    }
+    // If sending FormData, let the browser set the correct multipart boundary
+    if (typeof FormData !== 'undefined' && config.data instanceof FormData) {
+      delete config.headers['Content-Type'];
+    } else {
+      // For JSON payloads, set Content-Type if not already set
+      if (!config.headers['Content-Type']) {
+        config.headers['Content-Type'] = 'application/json';
+      }
     }
     return config;
   },
@@ -44,10 +54,8 @@ export const authAPI = {
 export const productAPI = {
   getAll: () => api.get('/products'),
   getById: (id) => api.get(`/products/${id}`),
-  create: (formData) => api.post('/products', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' },
-  }),
-  search: (keyword) => api.get(`/products/search?keyword=${keyword}`),
+  create: (formData) => api.post('/products', formData),
+  search: (keyword) => api.get(`/products/search`, { params: { keyword } }),
   trending: () => api.get('/products/trending'),
   byCategory: (category) => api.get(`/products/category/${category}`),
   myProducts: () => api.get('/products/my-products'),
@@ -67,11 +75,19 @@ export const adminAPI = {
 // Transaction APIs
 export const transactionAPI = {
   create: (data) => api.post('/transactions', data),
+  checkout: (data) => api.post('/transactions/checkout', data),
   accept: (id) => api.put(`/transactions/${id}/accept`),
   reject: (id) => api.put(`/transactions/${id}/reject`),
+  counter: (id, amount) => api.put(`/transactions/${id}/counter`, { amount }),
   complete: (id) => api.put(`/transactions/${id}/complete`),
   buyerTransactions: () => api.get('/transactions/buyer'),
   sellerTransactions: () => api.get('/transactions/seller'),
+};
+
+// Public APIs (no auth required)
+export const publicAPI = {
+  checkout: ({ email, productId, paymentMethod }) => api.post('/public/checkout', { email, productId, paymentMethod }),
+  request: ({ email, productId }) => api.post('/public/request', { email, productId }),
 };
 
 // Wishlist APIs

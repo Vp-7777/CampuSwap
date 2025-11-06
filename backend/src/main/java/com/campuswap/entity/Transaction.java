@@ -41,6 +41,9 @@ public class Transaction {
     private PaymentMethod paymentMethod;
     
     private String deliveryStatus;
+
+    @Column
+    private String trackingCode;
     
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
@@ -137,6 +140,10 @@ public class Transaction {
     public void setDeliveryStatus(String deliveryStatus) {
         this.deliveryStatus = deliveryStatus;
     }
+
+    public String getTrackingCode() { return trackingCode; }
+
+    public void setTrackingCode(String trackingCode) { this.trackingCode = trackingCode; }
     
     public LocalDateTime getCreatedAt() {
         return createdAt;

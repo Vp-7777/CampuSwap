@@ -48,7 +48,7 @@ const Wishlist = () => {
                       src={p.images[0].startsWith('http') ? p.images[0] : `http://localhost:8080${p.images[0]}`}
                       alt={p.title}
                       className="h-full w-full object-cover"
-                      onError={(e) => { e.target.src = 'https://via.placeholder.com/400?text=No+Image'; }}
+onError={(e) => { e.target.src = 'https://placehold.co/400x300?text=No+Image'; }}
                     />
                   ) : (
                     <span className="text-gray-400">No Image</span>
@@ -62,6 +62,7 @@ const Wishlist = () => {
               </div>
               <div className="mt-3 flex items-center gap-2">
                 <button onClick={() => remove(p.id)} className="px-3 py-2 bg-red-500 text-white rounded hover:bg-red-600 text-sm">Remove</button>
+                <Link to={`/checkout?productId=${p.id}`} className="px-3 py-2 bg-green-600 text-white rounded hover:bg-green-700 text-sm">Buy Now</Link>
                 <Link to={`/products/${p.id}`} className="px-3 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 text-sm">View</Link>
               </div>
             </div>

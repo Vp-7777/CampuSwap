@@ -43,6 +43,19 @@ public class TransactionController {
         return ResponseEntity.ok(transaction);
     }
 
+    @PostMapping("/checkout")
+    public ResponseEntity<Transaction> checkout(
+            @RequestBody Map<String, Object> request,
+            Authentication authentication) {
+        User user = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        Long productId = Long.valueOf(request.get("productId").toString());
+        String pm = String.valueOf(request.get("paymentMethod"));
+        Transaction.PaymentMethod method = Transaction.PaymentMethod.valueOf(pm);
+        Transaction tx = transactionService.createAndCompleteTransaction(productId, user.getId(), method);
+        return ResponseEntity.ok(tx);
+    }
+
     @PutMapping("/{id}/accept")
     public ResponseEntity<Transaction> acceptTransaction(
             @PathVariable Long id,
@@ -63,6 +76,17 @@ public class TransactionController {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         return ResponseEntity.ok(transactionService.rejectTransaction(id, user.getId()));
+    }
+
+    @PutMapping("/{id}/counter")
+    public ResponseEntity<Transaction> counterTransaction(
+            @PathVariable Long id,
+            @RequestBody Map<String, Object> body,
+            Authentication authentication) {
+        User user = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        Double amount = Double.valueOf(String.valueOf(body.get("amount")));
+        return ResponseEntity.ok(transactionService.counterTransaction(id, user.getId(), amount));
     }
 
     @PutMapping("/{id}/complete")

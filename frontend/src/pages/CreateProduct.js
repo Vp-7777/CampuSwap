@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { productAPI } from '../services/api';
+import SmartPrice from '../components/SmartPrice';
 
 const CreateProduct = () => {
   const [formData, setFormData] = useState({
@@ -46,16 +47,19 @@ const CreateProduct = () => {
       data.append('description', formData.description);
       data.append('price', formData.price);
       data.append('category', formData.category);
-      data.append('exchangeAllowed', formData.exchangeAllowed);
+      data.append('exchangeAllowed', String(formData.exchangeAllowed));
       data.append('exchangeItem', formData.exchangeItem);
       if (image) {
         data.append('image', image);
       }
 
       await productAPI.create(data);
+      // notify coin wallet to refresh
+      window.dispatchEvent(new Event('coinUpdate'));
       navigate('/my-products');
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to create product');
+      const msg = err.response?.data?.error || err.response?.data?.message || JSON.stringify(err.response?.data) || err.message || 'Failed to create product';
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -73,6 +77,8 @@ const CreateProduct = () => {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Smart price */}
+          <SmartPrice category={formData.category} onPick={(p)=>setFormData({...formData, price: String(p)})} />
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Product Title</label>
             <input
